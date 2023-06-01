@@ -24,8 +24,8 @@ dbs ={
 
 pgn = open("test.pgn")
 
-onlyratings = None
-onlyspeeds = ["ultraBullet","bullet"]
+onlyratings =[1600,1800,2000,2200,2500]
+onlyspeeds = ["blitz","rapid"]
 
 def getEntryJSON(url, speeds, ratings, ucistr):
     while True:
@@ -43,7 +43,6 @@ def getEntryJSON(url, speeds, ratings, ucistr):
 
 for game in iter(partial(chess.pgn.read_game,pgn),None) :
     board = game.board()
-    ucilist = []
     movelist = [ move for move in game.mainline_moves()]
     ucilist = [move.uci() for move in movelist]
     sanstr = board.variation_san(movelist)
