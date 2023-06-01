@@ -4,34 +4,47 @@ import chess.pgn
 import chess
 import requests
 import json
+from functools import partial
 
-dbloc ={
-    "lichess": "https://explorer.lichess.ovh/lichess",
-    "masters": "https://explorer.lichess.ovh/masters"
+dbs ={
+    "lichess": {
+        "url":"https://explorer.lichess.ovh/lichess",
+        "speeds":["ultraBullet","bullet","blitz","rapid",
+                  "classical","correspondence"],
+        "ratings":[0,1000,1200,1400,1600,1800,2000,2200,2500]
+    },
+    "masters": {
+        "url":"https://explorer.lichess.ovh/masters",
+        "speeds":[None],
+        "ratings":[None]
     }
-
-#speeds
-timecon =["ultraBullet","bullet","blitz","rapid","classical","correspondence"]
-#ratings
-rating  =[0,1000,1200,1400,1600,1800,2000,2200,2500]
+}
 
 pgn = open("test.pgn")
-gameslist = []
-while True:
-    game= chess.pgn.read_game(pgn)
-    if game is not None:
-        gameslist.append(game)
-    else: 
-        break
 
-for game in gameslist:
-    ucilist = ",".join([x.uci() for x in game.mainline_moves()])
-    print(ucilist)
-    req = requests.get(dbloc['lichess'], params={"play":ucilist,"speeds":"rapid","rating":1000})
-    reqdat = req.json()
-    print(reqdat['white'],reqdat['draws'],reqdat['black'])
+onlyratings = None
+onlyspeeds = ["ultraBullet","bullet"]
 
-#for cur_game in chess.pgn.read_game(pgn):
-#  print (",".join([x.uci() for x in cur_game.mainline_moves()]))
-#  for x in cur_game.mainline_moves():
-#      print (x)
+for game in iter(partial(chess.pgn.read_game,pgn),None) :
+    board = game.board()
+    ucilist = []
+    movelist = [ move for move in game.mainline_moves()]
+    ucilist = [move.uci() for move in movelist]
+    sanstr = board.variation_san(movelist)
+    ucistr = ",".join(ucilist)
+    for dbname, db in dbs.items():
+        for speeds in db["speeds"]:
+            if (onlyspeeds is not None and speeds is not None and
+                speeds not in onlyspeeds):
+                continue
+            for ratings in db["ratings"]:
+                if (onlyratings is not None and ratings is not None and
+                    ratings not in onlyratings):
+                    continue
+                req = requests.get(db['url'],
+                                   params={"play":ucistr,"speeds":speeds,
+                                           "ratings":ratings})
+                reqdat = req.json()
+                report = ",".join(map(str,
+                                       [sanstr,dbname,speeds,ratings,reqdat['white'],reqdat['draws'],reqdat['black']]))
+                print(report)
