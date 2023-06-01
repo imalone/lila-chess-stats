@@ -1,0 +1,10 @@
+Command line options to control database, time control and rating selections, input pgn.
+
+Worth considering tabluating outcomes for variations within games in pgn rather than main lines only? Might integrate better with setting up variations for comparison in analysis boards.
+
+Generate nice tables from the resulting data, possibly in spreadsheet format as well as csv. Maybe as a separate tool from the results retrieving step.
+
+Investigate other useful outputs from the lila-openingexplorer reports, for example gives eco classification and name for opening. The recent and top games are not that interesting for our purposes, but the most popular moves result may be (and includes average rating information which is not shown in lichess's analysis board).
+
+Consider graphical interface for generating pgn (or variations?) to query. Most sophisticated version would be ability to set up variations, choose query options and then choose submit to retrive results, but effort may be unwarranted. (Many other GUIs capable of playing out variations to get pgn for instance.)
+
