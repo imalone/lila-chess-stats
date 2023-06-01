@@ -3,8 +3,10 @@
 import chess.pgn
 import chess
 import requests
-import json
 from functools import partial
+from time import sleep
+
+retrytime=60
 
 dbs ={
     "lichess": {
@@ -25,6 +27,20 @@ pgn = open("test.pgn")
 onlyratings = None
 onlyspeeds = ["ultraBullet","bullet"]
 
+def getEntryJSON(url, speeds, ratings, ucistr):
+    while True:
+        req = requests.get(url, params={"play":ucistr,
+                                        "speeds":speeds,
+                                        "ratings":ratings})
+        if req.status_code == 200:
+            break
+        elif req.status_code == 429:
+            sleep(retrytime)
+        else:
+            req.raise_for_status()
+    return req.json()
+
+
 for game in iter(partial(chess.pgn.read_game,pgn),None) :
     board = game.board()
     ucilist = []
@@ -41,10 +57,8 @@ for game in iter(partial(chess.pgn.read_game,pgn),None) :
                 if (onlyratings is not None and ratings is not None and
                     ratings not in onlyratings):
                     continue
-                req = requests.get(db['url'],
-                                   params={"play":ucistr,"speeds":speeds,
-                                           "ratings":ratings})
-                reqdat = req.json()
+                reqdat = getEntryJSON(db['url'],speeds,
+                                      ratings,ucistr)
                 report = ",".join(map(str,
                                        [sanstr,dbname,speeds,ratings,reqdat['white'],reqdat['draws'],reqdat['black']]))
                 print(report)
