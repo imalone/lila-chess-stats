@@ -1,10 +1,12 @@
 #!/usr/bin/env python
 
-import chess.pgn
-import chess
-import requests
 from functools import partial
 from time import sleep
+import argparse
+import requests
+
+import chess.pgn
+import chess
 
 retrytime=60
 
@@ -22,10 +24,19 @@ dbs ={
     }
 }
 
-pgn = open("test.pgn")
-
 onlyratings =[1600,1800,2000,2200,2500]
 onlyspeeds = ["blitz","rapid"]
+
+parser = argparse.ArgumentParser(
+    prog="pgn-win-rates.py",
+    description="pull winning rates for pgn variations from a lila-openingexplorer host")
+parser.add_argument("-p","--pgn",required=True,type=str)
+
+args = parser.parse_args()
+
+pgn = open(args.pgn)
+
+
 
 def getEntryJSON(url, speeds, ratings, ucistr):
     while True:
