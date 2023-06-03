@@ -1,5 +1,3 @@
-Command line options to control database, time control and rating selections, input pgn.
-
 Worth considering tabluating outcomes for variations within games in pgn rather than main lines only? Might integrate better with setting up variations for comparison in analysis boards.
 
 Generate nice tables from the resulting data, possibly in spreadsheet format as well as csv. Maybe as a separate tool from the results retrieving step.
